@@ -48,11 +48,11 @@
          * Class
          */
         var Drag = function(){
-            this.drag = baseMeth.$('move');//修改为传参，以备后面拓展使用
-            this.oldX = 0;
-            this.oldY = 0;
+            this.drag = baseMeth.$('move');
             this.pos = null;//计数器
             this.flag = false;//阀门
+            this.oldX = 0;
+            this.oldY = 0;
             this.init();
         }
         Drag.prototype = {
@@ -64,8 +64,8 @@
                      * @type {[type]}
                      */
                     var oldPos = self.getMousePos(e);
-                    self.oldX = oldPos.x;
-                    self.oldY = oldPos.y;
+                    self.oldX = oldPos.x - self.drag.offsetLeft;
+                    self.oldY = oldPos.y- self.drag.offsetTop;
                     self.flag = true;
                 });
                 baseMeth.addEvent(doc, 'mousemove',  function(e){
@@ -76,9 +76,11 @@
                 });
             },
             move: function(e){
-                this.pos = this.getMousePos(e);
                 //阀门
                 if(this.flag){
+                    this.pos = this.getMousePos(e);
+                console.log(this.pos.x +'  '+ this.oldX);
+
                     this.drag.style.left = (this.pos.x - this.oldX) + 'px';
                     this.drag.style.top = (this.pos.y - this.oldY) + 'px';
                     this.stopSlect();
