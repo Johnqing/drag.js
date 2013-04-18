@@ -48,11 +48,11 @@
          * Class
          */
         var Drag = function(){
-            this.drag = baseMeth.$('move');
-            this.pos = null;//计数器
-            this.flag = false;//阀门
+            this.drag = baseMeth.$('move');//修改为传参，以备后面拓展使用
             this.oldX = 0;
             this.oldY = 0;
+            this.pos = null;//计数器
+            this.flag = false;//阀门
             this.init();
         }
         Drag.prototype = {
