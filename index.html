@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+	<meta charset="UTF-8">
 	<title>Document</title>
 <style>
     .drag{border:1px solid #000;position: absolute;top:0;left: 0;width: 200px;height: 200px;background: #f60;}
@@ -12,7 +12,12 @@
     <div>sd</div>
     <script>
     (function(win){
+        var doc = win.document,
+            bdy = doc.body;
         var baseMeth = {
+            $: function(id){
+                return doc.getElementById(id);
+            },
             addEvent: function(elem, type, fn){
                 if (elem.addEventListener) {
                     elem.addEventListener(type, fn, false);
@@ -37,54 +42,77 @@
             getTarget: function(evt){
                 return evt.target || evt.srcElement;
             }
+            
+        }
+        /**
+         * Class
+         */
+        var Drag = function(){
+            this.drag = baseMeth.$('move');
+            this.pos = null;//计数器
+            this.flag = false;//阀门
+            this.oldX = 0;
+            this.oldY = 0;
+            this.init();
+        }
+        Drag.prototype = {
+            init: function(){
+                var self = this;
+                baseMeth.addEvent(doc, 'mousedown', function(e){
+                    /**
+                     * 记录鼠标按下位置
+                     * @type {[type]}
+                     */
+                    var oldPos = self.getMousePos(e);
+                    self.oldX = oldPos.x;
+                    self.oldY = oldPos.y;
+                    self.flag = true;
+                });
+                baseMeth.addEvent(doc, 'mousemove',  function(e){
+                    self.move(e);
+                });
+                baseMeth.addEvent(doc, 'mouseup',  function(){
+                    self.flag = false;
+                });
+            },
+            move: function(e){
+                this.pos = this.getMousePos(e);
+                //阀门
+                if(this.flag){
+                    this.drag.style.left = (this.pos.x - this.oldX) + 'px';
+                    this.drag.style.top = (this.pos.y - this.oldY) + 'px';
+                    this.stopSlect();
+                }
+            },
+            /**
+             * 获取坐标位置
+             * @param  {[Object]} e
+             * @return {[Object]}   x y
+             */
+            getMousePos: function (e){
+                var e = baseMeth.getEvent(e);
+                if(e.pageX || e.pageY){
+                     return {x:e.pageX, y:e.pageY};
+                }
+                return{
+                    x:e.clientX + bdy.scrollLeft - bdy.clientLeft,
+                    y:e.clientY + bdy.scrollTop - bdy.clientTop
+                };
+            },
+            stopSlect: function(){
+                win.getSelection ? win.getSelection().removeAllRanges() : doc.selection.empty();
+            }
         }
         /**
          * 对外接口
          * @return {[type]} [description]
          */
         win.drag = function(){
-            var obj = null,//阀门
-                oldX = 0,
-                oldY = 0;
-
-            /**
-             * 运动
-             * @param  {[Object]} evt 
-             * @return {[type]}     
-             */
-            var move = function(evt){
-                var ev = baseMeth.getEvent(evt),
-                target = baseMeth.getTarget(ev);
-
-                switch(ev.type){
-                    case 'mousedown':
-                        if (target.className.indexOf('drag') < 0) {return};
-                        obj = target;
-                        oldX = ev.clientX - target.offsetLeft;
-                        oldX = ev.clientY - target.offsetTop;
-                    break;
-                    case 'mousemove':
-                        if (obj) {
-                            obj.style.left = (ev.clientX - oldX) + 'px';
-                            obj.style.top = (ev.clientY - oldY) + 'px';
-                        };
-                    break;
-                    case 'mouseup':
-                        obj = null;
-                    break;
-                }
-            }
-            return {
-                start: function(){
-                    baseMeth.addEvent(document, 'mousedown', move);
-                    baseMeth.addEvent(document, 'mousemove', move);
-                    baseMeth.addEvent(document, 'mouseup', move);
-                }
-            }
-        }();
+            new Drag();
+        };
     }(this));
     // 调用
-    drag.start();
+    drag();
     </script>
 </body>
 </html>
