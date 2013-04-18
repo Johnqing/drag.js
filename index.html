@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+	<title>Document</title>
+<style>
+    .drag{border:1px solid #000;position: absolute;top:0;left: 0;width: 200px;height: 200px;background: #f60;}
+</style>
+</head>
+<body>
+	<div id="move" class="drag"></div>
+    <div>sd</div>
+    <script>
+    (function(win){
+        var baseMeth = {
+            addEvent: function(elem, type, fn){
+                if (elem.addEventListener) {
+                    elem.addEventListener(type, fn, false);
+                }else if(elem.attachEvent){
+                    elem.attachEvent('on'+type, fn);
+                }else{
+                    elem['on'+type] = fn;
+                }
+            },
+            removeEvent: function(elem, type, fn){
+                if (elem.removeEventListener) {
+                    elem.removeEventListener(type, fn, false);
+                }else if(elem.detachEvent){
+                    elem.detachEvent('on'+type, fn);
+                }else{
+                    elem['on'+type] = null;
+                }
+            },
+            getEvent: function(evt){
+                return evt || win.event;
+            },
+            getTarget: function(evt){
+                return evt.target || evt.srcElement;
+            }
+        }
+        /**
+         * 对外接口
+         * @return {[type]} [description]
+         */
+        win.drag = function(){
+            var obj = null,//阀门
+                oldX = 0,
+                oldY = 0;
+
+            /**
+             * 运动
+             * @param  {[Object]} evt 
+             * @return {[type]}     
+             */
+            var move = function(evt){
+                var ev = baseMeth.getEvent(evt),
+                target = baseMeth.getTarget(ev);
+
+                switch(ev.type){
+                    case 'mousedown':
+                        if (target.className.indexOf('drag') < 0) {return};
+                        obj = target;
+                        oldX = ev.clientX - target.offsetLeft;
+                        oldX = ev.clientY - target.offsetTop;
+                    break;
+                    case 'mousemove':
+                        if (obj) {
+                            obj.style.left = (ev.clientX - oldX) + 'px';
+                            obj.style.top = (ev.clientY - oldY) + 'px';
+                        };
+                    break;
+                    case 'mouseup':
+                        obj = null;
+                    break;
+                }
+            }
+            return {
+                start: function(){
+                    baseMeth.addEvent(document, 'mousedown', move);
+                    baseMeth.addEvent(document, 'mousemove', move);
+                    baseMeth.addEvent(document, 'mouseup', move);
+                }
+            }
+        }();
+    }(this));
+    // 调用
+    drag.start();
+    </script>
+</body>
+</html>
