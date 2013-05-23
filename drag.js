@@ -104,29 +104,33 @@ var baseMeth = {
         },
         move: function(e){
             var self = this;
+            self.stopSlect();
             //阀门
             if(self.flag){
                 self.pos = self.getMousePos(e);
                 self.areaBlock();
                 self.cssRules();
-                self.stopSlect();
                 self.callback.call(this);
             }
         },
         cssRules: function(){
-            var self = this;
-            self.styleTemp = '';
+
+            var self = this,
+                left = null,
+                top = null;
             if(!self.stopX){
-                self.styleTemp += 'left:'+(self.pos.x - self.oldX)+'px;';
+                left = self.pos.x - self.oldX;
             }else{
-                self.styleTemp += 'left:'+(self.drag.offsetLeft)+'px;';
+                left = self.drag.offsetLeft;
             }
             if(!self.stopY){
-                self.styleTemp += 'top:'+(self.pos.y - self.oldY)+'px;';
+                top = self.pos.y - self.oldY;
             }else{
-                self.styleTemp += 'top:'+(self.drag.offsetTop)+'px;';
+                top = self.drag.offsetTop;
             }
-            self.drag.style.cssText = self.styleTemp;
+            self.top = top;
+            self.left = left;
+            self.drag.style.cssText = 'left:'+ left +'px;' + 'top:'+ top +'px;';
         },
         areaBlock: function(){
             var self = this;
