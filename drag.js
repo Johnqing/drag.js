@@ -80,6 +80,9 @@ var baseMeth = {
         this.oldX = 0;
         this.oldY = 0;
 
+        this.left = 0;
+        this.top = 0;
+
         this.init();
     }
     Drag.prototype = {
