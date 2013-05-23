@@ -1,4 +1,3 @@
-
 var baseMeth = {
     $: function(id){
         return document.getElementById(id);
@@ -39,7 +38,7 @@ var baseMeth = {
         bdy = doc.body;
 
     var defaultConfig = {
-        target: baseMeth.$('move'),
+        target: null,
         setArea: false,
         xStart: 0,
         xEnd: 300,
