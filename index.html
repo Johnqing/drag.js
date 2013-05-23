@@ -6,9 +6,15 @@
 <style>
 *{margin: 0;padding: 0}
 .drag{position:absolute; width:60px; height:60px; background:#999; border:#666 1px solid; cursor:move; z-index:2000}
+#op{
+    width: 100px;
+    height: 100px;
+    background: #f00;
+}
 </style>
 </head>
 <body>
+    <div id="op"></div>
 	<div id="move" class="drag"></div>
     <div>sd</div>
     <script src="drag.js"></script>
@@ -16,7 +22,16 @@
     // 调用
     drag({
     	target: baseMeth.$('move'),
-        setArea: true
+        setArea: true,
+        backup: 100,
+        callback: function(){
+            this.backup= 100 - Math.round((this.pos.x - this.oldX + 3)/3);
+            if(document.all){
+                baseMeth.$('op').style.cssText='filter:alpha(opacity='+this.backup+');';
+            }else{
+                baseMeth.$('op').style.cssText='opacity:'+(this.backup/100)+';';
+            }
+        }
     });
     </script>
 </body>

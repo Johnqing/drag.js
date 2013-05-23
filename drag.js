@@ -43,7 +43,10 @@ var baseMeth = {
         xStart: 0,
         xEnd: 300,
         yStart: 0,
-        yEnd: 300
+        yEnd: 300,
+        callback: function(){
+
+        }
     }
     /**
      * @class
@@ -54,7 +57,9 @@ var baseMeth = {
      * xStart 限制区域横向起始位置
      * xEnd  限制区域横向结束位置
      * yStart 限制区域纵向起始位置
-     * yEnd: 限制区域纵向结束位置
+     * yEnd 限制区域纵向结束位置
+     * backup 备用参数可配置
+     * callback 回调函数
      * @return {[Object]}
      */
     var Drag = function(opts){
@@ -64,7 +69,8 @@ var baseMeth = {
         this.xEnd = opts.xEnd;
         this.yStart = opts.yStart;
         this.yEnd = opts.yEnd;
-
+        this.backup = opts.backup;
+        this.callback = opts.callback;
 
         this.stopX = false;
         this.stopY = false;
@@ -104,6 +110,7 @@ var baseMeth = {
                 self.areaBlock();
                 self.cssRules();
                 self.stopSlect();
+                self.callback.call(this);
             }
         },
         cssRules: function(){
