@@ -1,39 +1,39 @@
 var baseMeth = {
-    $: function(id){
-        return document.getElementById(id);
-    },
-    addEvent: function(elem, type, fn){
-        if (elem.addEventListener) {
-            elem.addEventListener(type, fn, false);
-        }else if(elem.attachEvent){
-            elem.attachEvent('on'+type, fn);
-        }else{
-            elem['on'+type] = fn;
+        $: function(id){
+            return document.getElementById(id);
+        },
+        addEvent: function(elem, type, fn){
+            if (elem.addEventListener) {
+                elem.addEventListener(type, fn, false);
+            }else if(elem.attachEvent){
+                elem.attachEvent('on'+type, fn);
+            }else{
+                elem['on'+type] = fn;
+            }
+        },
+        removeEvent: function(elem, type, fn){
+            if (elem.removeEventListener) {
+                elem.removeEventListener(type, fn, false);
+            }else if(elem.detachEvent){
+                elem.detachEvent('on'+type, fn);
+            }else{
+                elem['on'+type] = null;
+            }
+        },
+        getEvent: function(evt){
+            return evt || win.event;
+        },
+        getTarget: function(evt){
+            return evt.target || evt.srcElement;
+        },
+        extend: function(define, source) {
+            for (var property in source){
+                define[property] = source[property];
+            }
+            return define;
         }
-    },
-    removeEvent: function(elem, type, fn){
-        if (elem.removeEventListener) {
-            elem.removeEventListener(type, fn, false);
-        }else if(elem.detachEvent){
-            elem.detachEvent('on'+type, fn);
-        }else{
-            elem['on'+type] = null;
-        }
-    },
-    getEvent: function(evt){
-        return evt || win.event;
-    },
-    getTarget: function(evt){
-        return evt.target || evt.srcElement;
-    },
-    extend: function(define, source) {
-        for (var property in source){
-            define[property] = source[property];
-        }
-        return define;
-    }
-}
-;(function(win){
+    };
+(function(win){
     var doc = win.document,
         bdy = doc.body;
 
@@ -47,7 +47,12 @@ var baseMeth = {
         callback: function(){
 
         }
-    }
+    },
+    bind = function(object, fun) {
+        return function(event) {
+            return fun.call(object, (event || win.event));
+        }
+    };
     /**
      * @class
      * @param  {[Object]} opts 参数
@@ -97,13 +102,40 @@ var baseMeth = {
                 self.pos = self.getMousePos(e);
                 self.oldX = self.pos.x - this.offsetLeft;
                 self.oldY = self.pos.y - this.offsetTop;
+                self.start(e);
             });
-            baseMeth.addEvent(doc, 'mousemove',  function(e){
-                self.move(e);
-            });
-            baseMeth.addEvent(doc, 'mouseup',  function(){
-                self.flag = false;
-            });
+        },
+        start: function(ev){
+            var self = this;
+            baseMeth.addEvent(doc, 'mousemove', bind(self, self.Move));
+            baseMeth.addEvent(doc, 'mouseup', self.stop);
+            if(self.IE){
+                //焦点丢失
+                baseMeth.addEvent(self.target, "losecapture", self.stop);
+                //设置鼠标捕获
+                self.target.setCapture();
+            }else{
+                //焦点丢失
+                baseMeth.addEvent(win, 'blur', self.stop);
+                //阻止默认动作
+                ev.preventDefault();
+            }
+        },
+        stop: function(){
+            var self = this;
+            self.flag = false;
+            //移除事件
+            baseMeth.removeEvent(doc, 'mousemove', self.Move);
+            baseMeth.removeEvent(doc, 'mouseup', self.stop);
+            if(self.IE){
+                baseMeth.removeEvent(self.target, 'losecapture', self.stop);
+                self.target.releaseCapture();
+            }else{
+                baseMeth.removeEvent(win, 'blur', self.stop);
+            }
+        },
+        Move: function(ev){
+            this.move(ev);
         },
         move: function(e){
             var self = this;
@@ -112,22 +144,21 @@ var baseMeth = {
             if(self.flag){
                 self.pos = self.getMousePos(e);
                 self.areaBlock();
-                self.cssRules();
+                self.cssRules(e);
                 self.callback.call(this);
             }
         },
-        cssRules: function(){
-
+        cssRules: function(ev){
             var self = this,
                 left = null,
                 top = null;
             if(!self.stopX){
-                left = self.pos.x - self.oldX;
+                left = ev.clientX - self.oldX;
             }else{
                 left = self.drag.offsetLeft;
             }
             if(!self.stopY){
-                top = self.pos.y - self.oldY;
+                top = ev.clientY - self.oldY;
             }else{
                 top = self.drag.offsetTop;
             }
@@ -166,7 +197,7 @@ var baseMeth = {
         getMousePos: function (e){
             var e = baseMeth.getEvent(e);
             if(e.pageX || e.pageY){
-                 return {x:e.pageX, y:e.pageY};
+                return {x:e.pageX, y:e.pageY};
             }
             return{
                 x:e.clientX + bdy.scrollLeft - bdy.clientLeft,
