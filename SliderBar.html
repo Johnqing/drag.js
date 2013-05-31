@@ -87,7 +87,7 @@
                 barHeight = Math.round(wrapHeight/(conHeight/wrapHeight)),
                 x = wrapHeight/barHeight;
             scrollBar.style.height = barHeight;
-            $("#bar").drag({
+            scrollBar.drag({
                 setArea: true,
                 stopX:true,
                 xStart: 290,
@@ -95,7 +95,7 @@
                 yStart: 0,
                 yEnd: wrapHeight - sbarHeight,
                 backup: 100,
-                drag:scrollBar ,
+                drag: scrollBar ,
                 callback: function(){
                     con.css('top', ~this.pos.y * x);
                 }
