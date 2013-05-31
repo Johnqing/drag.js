@@ -40,6 +40,8 @@ var baseMeth = {
     var defaultConfig = {
         target: null,
         setArea: false,
+        stopX: false,
+        stopY: false,
         xStart: 0,
         xEnd: 300,
         yStart: 0,
@@ -77,8 +79,8 @@ var baseMeth = {
         this.backup = opts.backup;
         this.callback = opts.callback;
 
-        this.stopX = false;
-        this.stopY = false;
+        this.stopX = opts.stopX;
+        this.stopY = opts.stopY;
 
         this.pos = null;//计数器
         this.flag = false;//阀门
