@@ -162,8 +162,8 @@ var baseMeth = {
             }else{
                 top = self.drag.offsetTop;
             }
-            self.top = top;
-            self.left = left;
+            self.top = self.pos.y = top;
+            self.left = self.pos.x = left;
             self.drag.style.cssText = 'left:'+ left +'px;' + 'top:'+ top +'px;';
         },
         areaBlock: function(){
